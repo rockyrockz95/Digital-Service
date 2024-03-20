@@ -127,7 +127,7 @@ class Review:
         unique=False,
     )
 
-    def to_jscon(self):
+    def to_json(self):
         return {
             "reviewID": self.reviewID,
             "clientID": self.clientID,
