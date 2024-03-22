@@ -19,7 +19,7 @@ class User(db.Model, UserMixin):
     notes = db.relationship("Note")
 
 
-class Client(db.Model):
+class Client(db.Model, UserMixin):
     clientID = db.Column(db.Integer, primary_key=True)
     client_name = db.Column(db.VARCHAR(50), unique=False, nullable=False)
     # one account per email
@@ -27,11 +27,9 @@ class Client(db.Model):
     # case of family members
     address = db.Column(db.VARCHAR(50), unique=False)
     client_password = db.Column(db.VARCHAR(15), unique=False, nullable=False)
+    appointments = db.relationship("Appointment", backref="client", lazy=True)
+    reviews = db.relationship("Review", backref="client", lazy=True)
 
-    # turns fields into dictionary that can be converted into JSON (JS object notation)
-    # api takes and sends JSON objects
-    # JSON conventione: camelCase
-    # Python convention: snake_case
     def to_json(self):
         return {
             "clientID": self.clientID,
@@ -42,7 +40,7 @@ class Client(db.Model):
         }
 
 
-class Technician(db.Model):
+class Technician(db.Model, UserMixin):
     techID = db.Column(db.Integer, primary_key=True)
     tech_name = db.Column(db.VARCHAR(50), unique=False, nullable=False)
     # TODO: change if causes problems; should be a N/A option
@@ -54,10 +52,10 @@ class Technician(db.Model):
     tech_email = db.Column(db.VARCHAR(50), unique=True, nullable=False)
     tech_password = db.Column(db.VARCHAR(50), unique=False, nullable=False)
 
-    # turns fields into dictionary that can be converted into JSON (JS object notation)
-    # api takes and sends JSON objects
-    # JSON conventione: camelCase
-    # Python convention: snake_case
+    appointments = db.relationship("Appointment", backref="tech", lazy=True)
+    reviews = db.relationship("Review", backref="tech", lazy=True)
+    schedules = db.relationship("Schedule", backref="tech", lazy=True)
+    
     def to_json(self):
         return {
             "techID": self.techID,
@@ -70,18 +68,18 @@ class Technician(db.Model):
         }
 
 
+# one to many with Client, Technician
 class Appointment(db.Model):
     appointmentID = db.Column(db.Integer, primary_key=True)
-    clientID = db.Column(db.Integer, db.ForeignKey(Client.clientID))
-    techID = db.Column(db.Integer, db.ForeignKey(Technician.techID))
+    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
+    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     purpose = db.Column(db.VARCHAR(30), nullable=False, unique=False)
     price = db.Column(db.Integer, nullable=False, unique=False)
     # might combine into dateTime
     day = db.Column(db.VARCHAR(20), nullable=False, unique=False)
-    # timezone aware column
     # TODO: day and time combination should be unique; probably should combine
     time = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
-    additional_comment = db.Column(db.String, nullable=True, unique=False)
+    additional_comment = db.Column(db.Text, nullable=True, unique=False)
 
     def to_json(self):
         return {
@@ -96,9 +94,10 @@ class Appointment(db.Model):
         }
 
 
+# one to many with technician
 class Schedule(db.Model):
     scheduleID = db.Column(db.Integer, primary_key=True)
-    techID = db.Column(db.Integer, db.ForeignKey(Technician.techID))
+    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     day = db.Column(db.VARCHAR(20), nullable=False, unique=False)
     # TODO: find a different time type for this
     startTime = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
@@ -114,10 +113,11 @@ class Schedule(db.Model):
         }
 
 
+# one to many with client, tech
 class Review:
     reviewID = db.Column(db.Integer, primary_key=True)
-    clientID = db.Column(db.Integer, db.ForeignKey(Client.clientID))
-    techID = db.Column(db.Integer, db.ForeignKey(Technician.techID))
+    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
+    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     review_content = db.Column(db.String, nullable=True, unique=False)
     # rating out of 5 stars
     rating = db.Column(
