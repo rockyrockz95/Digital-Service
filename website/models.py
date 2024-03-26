@@ -1,14 +1,7 @@
-from sqlalchemy import CheckConstraint
 from . import db
+from sqlalchemy import CheckConstraint
 from flask_login import UserMixin
 from sqlalchemy.sql import func
-
-
-class Note(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    data = db.Column(db.String(10000))
-    date = db.Column(db.DateTime(timezone=True), default=func.now())
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 
 class User(db.Model, UserMixin):
@@ -18,8 +11,35 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     notes = db.relationship("Note")
 
+    def to_json(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "password": self.password,
+            "first_name": self.first_name,
+        }
 
-class Client(db.Model):
+
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.String(10000))
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    def to_json(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "data": self.data,
+            "date": self.date,
+        }
+
+
+# TODO: Check if the current user is a technician or client
+# TODO: search the database if the current username is in the Technician or Client db, curr_user is: blank OR
+# TODO: Add "ARE YOU TECHNICIAN or CLIENT option to the signup page"
+# TODO: VARCHAR --> String
+class Client(db.Model, UserMixin):
     clientID = db.Column(db.Integer, primary_key=True)
     client_name = db.Column(db.VARCHAR(50), unique=False, nullable=False)
     # one account per email
@@ -27,6 +47,9 @@ class Client(db.Model):
     # case of family members
     address = db.Column(db.VARCHAR(50), unique=False)
     client_password = db.Column(db.VARCHAR(15), unique=False, nullable=False)
+    # TODO: look up lazy
+    appointments = db.relationship("Appointment", backref="client", lazy=True)
+    reviews = db.relationship("Review", backref="client", lazy=True)
 
     # turns fields into dictionary that can be converted into JSON (JS object notation)
     # api takes and sends JSON objects
@@ -42,7 +65,7 @@ class Client(db.Model):
         }
 
 
-class Technician(db.Model):
+class Technician(db.Model, UserMixin):
     techID = db.Column(db.Integer, primary_key=True)
     tech_name = db.Column(db.VARCHAR(50), unique=False, nullable=False)
     # TODO: change if causes problems; should be a N/A option
@@ -53,6 +76,10 @@ class Technician(db.Model):
     # technicians have to login to view bookings
     tech_email = db.Column(db.VARCHAR(50), unique=True, nullable=False)
     tech_password = db.Column(db.VARCHAR(50), unique=False, nullable=False)
+
+    appointments = db.relationship("Appointment", backref="tech", lazy=True)
+    reviews = db.relationship("Review", backref="tech", lazy=True)
+    schedules = db.relationship("Schedule", backref="tech", lazy=True)
 
     # turns fields into dictionary that can be converted into JSON (JS object notation)
     # api takes and sends JSON objects
@@ -70,18 +97,20 @@ class Technician(db.Model):
         }
 
 
+# one to many with Client, Technician
 class Appointment(db.Model):
     appointmentID = db.Column(db.Integer, primary_key=True)
-    clientID = db.Column(db.Integer, db.ForeignKey(Client.clientID))
-    techID = db.Column(db.Integer, db.ForeignKey(Technician.techID))
+    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
+    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     purpose = db.Column(db.VARCHAR(30), nullable=False, unique=False)
     price = db.Column(db.Integer, nullable=False, unique=False)
     # might combine into dateTime
     day = db.Column(db.VARCHAR(20), nullable=False, unique=False)
     # timezone aware column
     # TODO: day and time combination should be unique; probably should combine
+    # TODO: check if in utc
     time = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
-    additional_comment = db.Column(db.String, nullable=True, unique=False)
+    additional_comment = db.Column(db.VARCHAR(200), nullable=True, unique=False)
 
     def to_json(self):
         return {
@@ -96,9 +125,10 @@ class Appointment(db.Model):
         }
 
 
+# one to many with technician
 class Schedule(db.Model):
     scheduleID = db.Column(db.Integer, primary_key=True)
-    techID = db.Column(db.Integer, db.ForeignKey(Technician.techID))
+    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     day = db.Column(db.VARCHAR(20), nullable=False, unique=False)
     # TODO: find a different time type for this
     startTime = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
@@ -114,11 +144,12 @@ class Schedule(db.Model):
         }
 
 
-class Review:
+# one to many with client, tech
+class Review(db.Model):
     reviewID = db.Column(db.Integer, primary_key=True)
-    clientID = db.Column(db.Integer, db.ForeignKey(Client.clientID))
-    techID = db.Column(db.Integer, db.ForeignKey(Technician.techID))
-    review_content = db.Column(db.String, nullable=True, unique=False)
+    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
+    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
+    review_content = db.Column(db.VARCHAR(250), nullable=True, unique=False)
     # rating out of 5 stars
     rating = db.Column(
         db.Integer,
@@ -127,7 +158,7 @@ class Review:
         unique=False,
     )
 
-    def to_jscon(self):
+    def to_json(self):
         return {
             "reviewID": self.reviewID,
             "clientID": self.clientID,

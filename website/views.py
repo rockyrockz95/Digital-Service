@@ -4,6 +4,8 @@ from .models import Note
 from . import db
 import json
 
+# standard routes for users
+# Blueprint: many routes defined within
 views = Blueprint("views", __name__)
 
 
