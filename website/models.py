@@ -36,11 +36,6 @@ class Note(db.Model):
             "date": self.date,
         }
 
-
-# TODO: Check if the current user is a technician or client
-# TODO: search the database if the current username is in the Technician or Client db, curr_user is: blank OR
-# TODO: Add "ARE YOU TECHNICIAN or CLIENT option to the signup page"
-# TODO: VARCHAR --> String
 class Client(db.Model, UserMixin):
     clientID = db.Column(db.Integer, primary_key=True)
     client_name = db.Column(db.VARCHAR(50), unique=False, nullable=False)
@@ -78,11 +73,7 @@ class Technician(db.Model, UserMixin):
     appointments = db.relationship("Appointment", backref="tech", lazy=True)
     reviews = db.relationship("Review", backref="tech", lazy=True)
     schedules = db.relationship("Schedule", backref="tech", lazy=True)
-
-    # turns fields into dictionary that can be converted into JSON (JS object notation)
-    # api takes and sends JSON objects
-    # JSON conventione: camelCase
-    # Python convention: snake_case
+    
     def to_json(self):
         return {
             "techID": self.techID,
