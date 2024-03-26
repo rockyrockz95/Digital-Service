@@ -11,6 +11,8 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     notes = db.relationship("Note")
 
+
+class Client(db.Model, UserMixin):
     def to_json(self):
         return {
             "id": self.id,
@@ -51,10 +53,6 @@ class Client(db.Model, UserMixin):
     appointments = db.relationship("Appointment", backref="client", lazy=True)
     reviews = db.relationship("Review", backref="client", lazy=True)
 
-    # turns fields into dictionary that can be converted into JSON (JS object notation)
-    # api takes and sends JSON objects
-    # JSON conventione: camelCase
-    # Python convention: snake_case
     def to_json(self):
         return {
             "clientID": self.clientID,
@@ -98,15 +96,17 @@ class Technician(db.Model, UserMixin):
 
 
 # one to many with Client, Technician
+# one to many with Client, Technician
 class Appointment(db.Model):
     appointmentID = db.Column(db.Integer, primary_key=True)
+    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
+    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
     techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     purpose = db.Column(db.VARCHAR(30), nullable=False, unique=False)
     price = db.Column(db.Integer, nullable=False, unique=False)
     # might combine into dateTime
     day = db.Column(db.VARCHAR(20), nullable=False, unique=False)
-    # timezone aware column
     # TODO: day and time combination should be unique; probably should combine
     # TODO: check if in utc
     time = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
@@ -125,6 +125,7 @@ class Appointment(db.Model):
         }
 
 
+# one to many with technician
 # one to many with technician
 class Schedule(db.Model):
     scheduleID = db.Column(db.Integer, primary_key=True)
