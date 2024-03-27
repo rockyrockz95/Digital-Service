@@ -81,8 +81,6 @@ class Appointment(db.Model):
     appointmentID = db.Column(db.Integer, primary_key=True)
     clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
     techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
-    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
-    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
     purpose = db.Column(db.VARCHAR(30), nullable=False, unique=False)
     price = db.Column(db.Integer, nullable=False, unique=False)
     # might combine into dateTime
