@@ -11,17 +11,6 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     notes = db.relationship("Note")
 
-
-class Client(db.Model, UserMixin):
-    def to_json(self):
-        return {
-            "id": self.id,
-            "email": self.email,
-            "password": self.password,
-            "first_name": self.first_name,
-        }
-
-
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.String(10000))
