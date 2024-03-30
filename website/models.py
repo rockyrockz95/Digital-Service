@@ -11,6 +11,7 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150))
     notes = db.relationship("Note")
 
+
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.String(10000))
@@ -25,123 +26,118 @@ class Note(db.Model):
             "date": self.date,
         }
 
-class Client(db.Model, UserMixin):
-    clientID = db.Column(db.Integer, primary_key=True)
-    client_name = db.Column(db.VARCHAR(50), unique=False, nullable=False)
-    # one account per email
-    client_email = db.Column(db.VARCHAR(50), unique=True, nullable=False)
-    # case of family members
-    address = db.Column(db.VARCHAR(50), unique=False)
-    client_password = db.Column(db.VARCHAR(15), unique=False, nullable=False)
-    # TODO: look up lazy
-    appointments = db.relationship("Appointment", backref="client", lazy=True)
-    reviews = db.relationship("Review", backref="client", lazy=True)
+
+class Provider(db.Model, UserMixin):
+    ProviderID = db.Column(db.Integer, primary_key=True)
+    Username = db.Column(db.VARCHAR(100))
+    Password = db.Column(db.VARCHAR(64))
+    Name = db.Column(db.VARCHAR(32))
+    Industry = db.Column(db.VARCHAR(10))  # pet || nail
+    Address = db.Column(db.VARCHAR(255))
+    Email = db.Column(db.VARCHAR(64))
+    Number = db.Column(db.BIGINT)
+    Rating = db.Column(db.Integer)
+    PriceRate = db.Column(db.Integer)
+    Specialization = db.Column(db.VARCHAR(64))
+    Company = db.Column(db.VARCHAR(100))
+
+    Appointments = db.relationship("Appointment", backref="provider", lazy=True)
+    Schedules = db.relationship("Schedule", backref="provider", lazy=True)
 
     def to_json(self):
         return {
-            "clientID": self.clientID,
-            "clientName": self.client_name,
-            "clientEmail": self.client_email,
-            "address": self.address,
-            "password": self.password,
+            "id": self.ProviderID,
+            "username": self.Username,
+            "email": self.Email,
+            "industry": self.Industry,
         }
+        
+class Customer(db.Model):
+    CustomerID = db.Column(db.Integer, primary_key=True)
+    Username = db.Column(db.VARCHAR(100))
+    Password = db.Column(db.VARCHAR(64))
+    Name = db.Column(db.VARCHAR(32))
+    Address = db.Column(db.VARCHAR(255))
+    Email = db.Column(db.VARCHAR(64))
+    Number = db.Column(db.BIGINT)
 
-
-class Technician(db.Model, UserMixin):
-    techID = db.Column(db.Integer, primary_key=True)
-    tech_name = db.Column(db.VARCHAR(50), unique=False, nullable=False)
-    # TODO: change if causes problems; should be a N/A option
-    specialization = db.Column(db.VARCHAR(50), unique=False, nullable=False)
-    # case of same company/store location
-    location = db.Column(db.VARCHAR(50), unique=False, nullable=False)
-    company = db.Column(db.VARCHAR(15), unique=False, nullable=False)
-    # technicians have to login to view bookings
-    tech_email = db.Column(db.VARCHAR(50), unique=True, nullable=False)
-    tech_password = db.Column(db.VARCHAR(50), unique=False, nullable=False)
-
-    appointments = db.relationship("Appointment", backref="tech", lazy=True)
-    reviews = db.relationship("Review", backref="tech", lazy=True)
-    schedules = db.relationship("Schedule", backref="tech", lazy=True)
-    
-    def to_json(self):
-        return {
-            "techID": self.techID,
-            "techName": self.tech_name,
-            "specialization": self.specialization,
-            "company": self.company,
-            "techEmail": self.tech_email,
-            "location": self.location,
-            "password": self.tech_password,
-        }
-
-
-# one to many with Client, Technician
-# one to many with Client, Technician
-class Appointment(db.Model):
-    appointmentID = db.Column(db.Integer, primary_key=True)
-    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
-    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
-    purpose = db.Column(db.VARCHAR(30), nullable=False, unique=False)
-    price = db.Column(db.Integer, nullable=False, unique=False)
-    # might combine into dateTime
-    day = db.Column(db.VARCHAR(20), nullable=False, unique=False)
-    # TODO: day and time combination should be unique; probably should combine
-    # TODO: check if in utc
-    time = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
-    additional_comment = db.Column(db.VARCHAR(200), nullable=True, unique=False)
+    Appointments = db.relationship("Appointment", backref="customer", lazy=True)
+    Pets = db.relationship("Pet", backref="customer", lazy=True)
 
     def to_json(self):
         return {
-            "appointmentID": self.appointmentID,
-            "clientID": self.clientID,
-            "techID": self.techID,
-            "purpose": self.purpose,
-            "price": self.price,
-            "day": self.day,
-            "time": self.time,
-            "additional_comment": self.additional_comment,
+            "CustomerID": self.CustomerID,
+            "CustomerName": self.Name,
+            "CustomerEmail": self.Email,
+            "Address": self.Address,
+            "Password": self.Password,
         }
 
 
-# one to many with technician
-# one to many with technician
+# TODO: Consider reserved id for no pets (ie -1)
+class Pet(db.Model):
+    PetID = db.Column(db.Integer, primary_key=True)
+    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
+    Name = db.Column(db.VARCHAR(64))
+    Age = db.Column(db.Integer)
+    Species = db.Column(db.VARCHAR(3))
+    Breed = db.Column(db.VARCHAR(32))
+
+    Appointments = db.relationship("Appointment", backref="pet", lazy=True)
+
+    def to_json(self):
+        return {
+            "PetID": self.PetID,
+            "CustomerID": self.CustomerID,
+            "Name": self.Name,
+            "Breed": self.Breed,
+        }
+
+
 class Schedule(db.Model):
-    scheduleID = db.Column(db.Integer, primary_key=True)
-    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
-    day = db.Column(db.VARCHAR(20), nullable=False, unique=False)
-    # TODO: find a different time type for this
-    startTime = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
-    endTime = db.Column(db.DateTime(timezone=True), nullable=False, unique=False)
+    ScheduleID = db.Column(db.Integer, primary_key=True)
+    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
+    Day = db.Column(db.DATE)
+    StartTime = db.Column(db.DATETIME)
+    EndTime = db.Column(db.DATETIME)
+
+
+class Service(db.Model):
+    ServiceID = db.Column(db.Integer, primary_key=True)
+    ServiceType = db.Column(db.VARCHAR(64))
+    PriceRate = db.Column(db.Integer)
+
+    Appointments = db.relationship("Appointment", backref="service", lazy=True)
 
     def to_json(self):
         return {
-            "scheduleID": self.scheduleID,
-            "techID": self.techID,
-            "day": self.day,
-            "startTime": self.startTime,
-            "endTime": self.endTime,
+            "ServiceID": self.ServiceID,
+            "ServiceType": self.ServiceType,
+            "PriceRate": self.PriceRate,
         }
 
 
-# one to many with client, tech
-class Review(db.Model):
-    reviewID = db.Column(db.Integer, primary_key=True)
-    clientID = db.Column(db.Integer, db.ForeignKey("client.clientID"))
-    techID = db.Column(db.Integer, db.ForeignKey("technician.techID"))
-    review_content = db.Column(db.VARCHAR(250), nullable=True, unique=False)
-    # rating out of 5 stars
-    rating = db.Column(
-        db.Integer,
-        CheckConstraint("rating <= 5", name="rating_max_limit"),
-        nullable=False,
-        unique=False,
-    )
+# TODO: GET GROUP FEEDBACK
+class Appointment(db.Model):
+    AppointmentID = db.Column(db.Integer, primary_key=True)
+    ScheduleID = db.Column(db.Integer, db.ForeignKey("schedule.ScheduleID"))
+    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
+    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
+    PetID = db.Column(db.Integer, db.ForeignKey("pet.PetID"))
+    ServiceID = db.Column(db.Integer, db.ForeignKey("service.ServiceID"))
+    Type = db.Column(db.VARCHAR(10))  # pet || nail
+    Status = db.Column(db.VARCHAR(32))
+    BorrowDate = db.Column(db.DATETIME)
+    ReturnDate = db.Column(db.DATETIME)
+    Cost = db.Column(db.Integer)
 
     def to_json(self):
         return {
-            "reviewID": self.reviewID,
-            "clientID": self.clientID,
-            "techID": self.techID,
-            "reviewContent": self.review_content,
-            "rating": self.rating,
+            "AppointmentID": self.AppointmentID,
+            "CustomerID": self.CustomerID,
+            "ProviderID": self.ProviderID,
+            "ScheduleID": self.ScheduleID,
+            "ServiceID": self.ServiceID,
+            "StartTime": self.BorrowDate,
+            "EndTime": self.ReturnDate,
         }
