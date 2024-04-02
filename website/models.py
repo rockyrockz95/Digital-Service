@@ -71,11 +71,6 @@ class Provider(db.Model, UserMixin):
             "industry": self.Industry,
         }
 
-
-# TODO: Check if the current user is a technician or client
-# TODO: search the database if the current username is in the Technician or Client db, curr_user is: blank OR
-# TODO: Add "ARE YOU TECHNICIAN or CLIENT option to the signup page"
-# TODO: check if running this creates the EXACT same db as catcare db sql
 class Customer(db.Model):
     CustomerID = db.Column(db.Integer, primary_key=True)
     Username = db.Column(db.VARCHAR(100))
@@ -119,7 +114,6 @@ class PetAppointment(db.Model):
     AppointmentID = db.Column(db.Integer, primary_key=True)
     ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
     PetID = db.Column(db.Integer, db.ForeignKey("pet.PetID"))
-    ServiceID = db.Column(db.Integer, db.ForeignKey("service.ServiceID"))
     Status = db.Column(db.VARCHAR(32))
     BorrowDate = db.Column(db.DATETIME)
     ReturnDate = db.Column(db.DATETIME)
@@ -153,7 +147,7 @@ class NailAppointment(db.Model):
 
 class Review(db.Model):
     ReviewID = db.Column(db.Integer, primary_key=True)
-    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.providerID"))
+    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
     ServiceType = db.Column(db.VARCHAR(20))
     Rating = db.Column(db.Integer)
     Comment = db.Column(db.TEXT)
