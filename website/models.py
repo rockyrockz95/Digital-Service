@@ -88,7 +88,24 @@ class Customer(db.Model):
             "CustomerEmail": self.Email,
             "Address": self.Address,
             "Password": self.Password,
+            "CustomerID": self.CustomerID,
+            "CustomerName": self.Name,
+            "CustomerEmail": self.Email,
+            "Address": self.Address,
+            "Password": self.Password,
         }
+
+
+# TODO: Consider reserved id for no pets (ie -1)
+class Pet(db.Model):
+    PetID = db.Column(db.Integer, primary_key=True)
+    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
+    Name = db.Column(db.VARCHAR(64))
+    Age = db.Column(db.Integer)
+    Species = db.Column(db.VARCHAR(3))
+    Breed = db.Column(db.VARCHAR(32))
+
+    Appointments = db.relationship("Appointment", backref="pet", lazy=True)
 
 
 # TODO: Consider reserved id for no pets (ie -1)
@@ -104,6 +121,10 @@ class Pet(db.Model):
 
     def to_json(self):
         return {
+            "PetID": self.PetID,
+            "CustomerID": self.CustomerID,
+            "Name": self.Name,
+            "Breed": self.Breed,
             "PetID": self.PetID,
             "CustomerID": self.CustomerID,
             "Name": self.Name,
