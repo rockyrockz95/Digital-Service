@@ -1,5 +1,4 @@
 from . import db
-from sqlalchemy import CheckConstraint
 from flask_login import UserMixin
 from sqlalchemy.sql import func
 
@@ -27,22 +26,34 @@ class Note(db.Model):
         }
 
 
+class ProviderSchedule(db.Model):
+    ScheduleID = db.Column(db.Integer, primary_key=True)
+    Day = db.Column(db.DATE)
+    StartTime = db.Column(db.DATETIME)
+    EndTime = db.Column(db.DATETIME)
+
+    Technicians = db.relationship("Provider", backref="schedule", lazy=True)
+
+
 class Provider(db.Model, UserMixin):
     ProviderID = db.Column(db.Integer, primary_key=True)
+    ProviderSchedule = db.Column(
+        db.Integer, db.ForeignKey("providerschedule.ScheduleID")
+    )
     Username = db.Column(db.VARCHAR(100))
     Password = db.Column(db.VARCHAR(64))
     Name = db.Column(db.VARCHAR(32))
-    Industry = db.Column(db.VARCHAR(10))  # pet || nail
+    Industry = db.Column(db.VARCHAR(64))  # pet || nail
     Address = db.Column(db.VARCHAR(255))
     Email = db.Column(db.VARCHAR(64))
     Number = db.Column(db.BIGINT)
     Rating = db.Column(db.Integer)
     PriceRate = db.Column(db.Integer)
     Specialization = db.Column(db.VARCHAR(64))
-    Company = db.Column(db.VARCHAR(100))
+    Company = db.Column(db.VARCHAR(64))
 
     Appointments = db.relationship("Appointment", backref="provider", lazy=True)
-    Schedules = db.relationship("Schedule", backref="provider", lazy=True)
+    Reviews = db.relationship("Review", backref="provider", lazy=True)
 
     def to_json(self):
         return {
@@ -66,7 +77,8 @@ class Customer(db.Model):
     Email = db.Column(db.VARCHAR(64))
     Number = db.Column(db.BIGINT)
 
-    Appointments = db.relationship("Appointment", backref="customer", lazy=True)
+    PetAppointments = db.relationship("PetAppointment", backref="customer", lazy=True)
+    NailAppointments = db.relationship("NailAppointment", backref="customer", lazy=True)
     Pets = db.relationship("Pet", backref="customer", lazy=True)
 
     def to_json(self):
@@ -99,50 +111,45 @@ class Pet(db.Model):
         }
 
 
-class Schedule(db.Model):
-    ScheduleID = db.Column(db.Integer, primary_key=True)
-    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
-    Day = db.Column(db.DATE)
-    StartTime = db.Column(db.DATETIME)
-    EndTime = db.Column(db.DATETIME)
-
-
-class Service(db.Model):
-    ServiceID = db.Column(db.Integer, primary_key=True)
-    ServiceType = db.Column(db.VARCHAR(64))
-    PriceRate = db.Column(db.Integer)
-
-    Appointments = db.relationship("Appointment", backref="service", lazy=True)
-
-    def to_json(self):
-        return {
-            "ServiceID": self.ServiceID,
-            "ServiceType": self.ServiceType,
-            "PriceRate": self.PriceRate,
-        }
-
-
-# TODO: GET GROUP FEEDBACK
-class Appointment(db.Model):
+class PetAppointment(db.Model):
     AppointmentID = db.Column(db.Integer, primary_key=True)
-    ScheduleID = db.Column(db.Integer, db.ForeignKey("schedule.ScheduleID"))
-    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
     ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
     PetID = db.Column(db.Integer, db.ForeignKey("pet.PetID"))
     ServiceID = db.Column(db.Integer, db.ForeignKey("service.ServiceID"))
-    Type = db.Column(db.VARCHAR(10))  # pet || nail
     Status = db.Column(db.VARCHAR(32))
     BorrowDate = db.Column(db.DATETIME)
     ReturnDate = db.Column(db.DATETIME)
-    Cost = db.Column(db.Integer)
+
+    def to_json(self):
+        return {
+            "AppointmentID": self.AppointmentID,
+            "ProviderID": self.ProviderID,
+            "BorrowDate": self.BorrowDate,
+            "ReturnDate": self.ReturnDate,
+        }
+
+
+class NailAppointment(db.Model):
+    AppointmentID = db.Column(db.Integer, primary_key=True)
+    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
+    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
+    Status = db.Column(db.VARCHAR(32))
+    StartTime = db.Column(db.DATETIME)
+    EndTime = db.Column(db.DATETIME)
 
     def to_json(self):
         return {
             "AppointmentID": self.AppointmentID,
             "CustomerID": self.CustomerID,
             "ProviderID": self.ProviderID,
-            "ScheduleID": self.ScheduleID,
-            "ServiceID": self.ServiceID,
-            "StartTime": self.BorrowDate,
-            "EndTime": self.ReturnDate,
+            "StartTime": self.StartTime,
+            "EndTime": self.EndTime,
         }
+
+
+class Review(db.Model):
+    ReviewID = db.Column(db.Integer, primary_key=True)
+    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.providerID"))
+    ServiceType = db.Column(db.VARCHAR(20))
+    Rating = db.Column(db.Integer)
+    Comment = db.Column(db.TEXT)
