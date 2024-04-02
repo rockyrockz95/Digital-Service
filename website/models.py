@@ -34,6 +34,14 @@ class ProviderSchedule(db.Model):
 
     Technicians = db.relationship("Provider", backref="schedule", lazy=True)
 
+    def to_json(self):
+        return {
+            "ScheduleID": self.ScheduleID,
+            "Day": self.Day,
+            "Start": self.StartTime,
+            "End": self.EndTime,
+        }
+
 
 class Provider(db.Model, UserMixin):
     ProviderID = db.Column(db.Integer, primary_key=True)
@@ -86,17 +94,9 @@ class Customer(db.Model):
             "CustomerID": self.CustomerID,
             "CustomerName": self.Name,
             "CustomerEmail": self.Email,
-            "Address": self.Address,
-            "Password": self.Password,
-            "CustomerID": self.CustomerID,
-            "CustomerName": self.Name,
-            "CustomerEmail": self.Email,
-            "Address": self.Address,
-            "Password": self.Password,
         }
 
 
-# TODO: Consider reserved id for no pets (ie -1)
 class Pet(db.Model):
     PetID = db.Column(db.Integer, primary_key=True)
     CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
@@ -105,30 +105,13 @@ class Pet(db.Model):
     Species = db.Column(db.VARCHAR(3))
     Breed = db.Column(db.VARCHAR(32))
 
-    Appointments = db.relationship("Appointment", backref="pet", lazy=True)
-
-
-# TODO: Consider reserved id for no pets (ie -1)
-class Pet(db.Model):
-    PetID = db.Column(db.Integer, primary_key=True)
-    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
-    Name = db.Column(db.VARCHAR(64))
-    Age = db.Column(db.Integer)
-    Species = db.Column(db.VARCHAR(3))
-    Breed = db.Column(db.VARCHAR(32))
-
-    Appointments = db.relationship("Appointment", backref="pet", lazy=True)
+    Appointments = db.relationship("PetAppointment", backref="pet", lazy=True)
 
     def to_json(self):
         return {
             "PetID": self.PetID,
             "CustomerID": self.CustomerID,
             "Name": self.Name,
-            "Breed": self.Breed,
-            "PetID": self.PetID,
-            "CustomerID": self.CustomerID,
-            "Name": self.Name,
-            "Breed": self.Breed,
         }
 
 
@@ -174,3 +157,11 @@ class Review(db.Model):
     ServiceType = db.Column(db.VARCHAR(20))
     Rating = db.Column(db.Integer)
     Comment = db.Column(db.TEXT)
+
+    def to_json(self):
+        return {
+            "ReviewID": self.ReviewID,
+            "ProviderID": self.ProviderID,
+            "ServiceType": self.ServiceType,
+            "Rating": self.Rating,
+        }
