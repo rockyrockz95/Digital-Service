@@ -27,12 +27,14 @@ class Note(db.Model):
 
 
 class ProviderSchedule(db.Model):
+    __tablename__ = "ProviderSchedule"  # simplifies relationship declarations
+
     ScheduleID = db.Column(db.Integer, primary_key=True)
     Day = db.Column(db.DATE)
     StartTime = db.Column(db.DATETIME)
     EndTime = db.Column(db.DATETIME)
 
-    Technicians = db.relationship("Provider", backref="schedule", lazy=True)
+    Providers = db.relationship("Provider", backref="Schedule", lazy=True)
 
     def to_json(self):
         return {
@@ -44,9 +46,11 @@ class ProviderSchedule(db.Model):
 
 
 class Provider(db.Model, UserMixin):
+    __tablename__ = "Provider"
+
     ProviderID = db.Column(db.Integer, primary_key=True)
     ProviderSchedule = db.Column(
-        db.Integer, db.ForeignKey("providerschedule.ScheduleID")
+        db.Integer, db.ForeignKey("ProviderSchedule.ScheduleID")
     )
     Username = db.Column(db.VARCHAR(100))
     Password = db.Column(db.VARCHAR(64))
@@ -60,7 +64,8 @@ class Provider(db.Model, UserMixin):
     Specialization = db.Column(db.VARCHAR(64))
     Company = db.Column(db.VARCHAR(64))
 
-    Appointments = db.relationship("Appointment", backref="provider", lazy=True)
+    PetAppointments = db.relationship("PetAppointment", backref="Provider", lazy=True)
+    NailAppointments = db.relationship("NailAppointment", backref="Provider", lazy=True)
     Reviews = db.relationship("Review", backref="provider", lazy=True)
 
     def to_json(self):
@@ -77,6 +82,8 @@ class Provider(db.Model, UserMixin):
 # TODO: Add "ARE YOU TECHNICIAN or CLIENT option to the signup page"
 # TODO: check if running this creates the EXACT same db as catcare db sql
 class Customer(db.Model):
+    __tablename__ = "Customer"
+
     CustomerID = db.Column(db.Integer, primary_key=True)
     Username = db.Column(db.VARCHAR(100))
     Password = db.Column(db.VARCHAR(64))
@@ -85,8 +92,7 @@ class Customer(db.Model):
     Email = db.Column(db.VARCHAR(64))
     Number = db.Column(db.BIGINT)
 
-    PetAppointments = db.relationship("PetAppointment", backref="customer", lazy=True)
-    NailAppointments = db.relationship("NailAppointment", backref="customer", lazy=True)
+    NailAppointments = db.relationship("NailAppointment", backref="Customer", lazy=True)
     Pets = db.relationship("Pet", backref="customer", lazy=True)
 
     def to_json(self):
@@ -98,14 +104,16 @@ class Customer(db.Model):
 
 
 class Pet(db.Model):
+    __tablename__ = "Pet"
+
     PetID = db.Column(db.Integer, primary_key=True)
-    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
+    CustomerID = db.Column(db.Integer, db.ForeignKey("Customer.CustomerID"))
     Name = db.Column(db.VARCHAR(64))
     Age = db.Column(db.Integer)
     Species = db.Column(db.VARCHAR(3))
     Breed = db.Column(db.VARCHAR(32))
 
-    Appointments = db.relationship("PetAppointment", backref="pet", lazy=True)
+    Appointments = db.relationship("PetAppointment", backref="Pet", lazy=True)
 
     def to_json(self):
         return {
@@ -116,10 +124,11 @@ class Pet(db.Model):
 
 
 class PetAppointment(db.Model):
+    __tablename__ = "PetAppointment"
+
     AppointmentID = db.Column(db.Integer, primary_key=True)
-    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
-    PetID = db.Column(db.Integer, db.ForeignKey("pet.PetID"))
-    ServiceID = db.Column(db.Integer, db.ForeignKey("service.ServiceID"))
+    ProviderID = db.Column(db.Integer, db.ForeignKey("Provider.ProviderID"))
+    PetID = db.Column(db.Integer, db.ForeignKey("Pet.PetID"))
     Status = db.Column(db.VARCHAR(32))
     BorrowDate = db.Column(db.DATETIME)
     ReturnDate = db.Column(db.DATETIME)
@@ -134,9 +143,11 @@ class PetAppointment(db.Model):
 
 
 class NailAppointment(db.Model):
+    __tablename__ = "NailAppointment"
+
     AppointmentID = db.Column(db.Integer, primary_key=True)
-    CustomerID = db.Column(db.Integer, db.ForeignKey("customer.CustomerID"))
-    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.ProviderID"))
+    CustomerID = db.Column(db.Integer, db.ForeignKey("Customer.CustomerID"))
+    ProviderID = db.Column(db.Integer, db.ForeignKey("Provider.ProviderID"))
     Status = db.Column(db.VARCHAR(32))
     StartTime = db.Column(db.DATETIME)
     EndTime = db.Column(db.DATETIME)
@@ -152,8 +163,10 @@ class NailAppointment(db.Model):
 
 
 class Review(db.Model):
+    __tablename__ = "Review"
+
     ReviewID = db.Column(db.Integer, primary_key=True)
-    ProviderID = db.Column(db.Integer, db.ForeignKey("provider.providerID"))
+    ProviderID = db.Column(db.Integer, db.ForeignKey("Provider.ProviderID"))
     ServiceType = db.Column(db.VARCHAR(20))
     Rating = db.Column(db.Integer)
     Comment = db.Column(db.TEXT)

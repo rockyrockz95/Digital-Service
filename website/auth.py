@@ -8,6 +8,7 @@ from flask_login import (
     logout_user,
     current_user,
 )
+from website.forms import SignUpForm
 
 # routes related to authorization
 auth = Blueprint("auth", __name__)
@@ -44,6 +45,10 @@ def logout():
 
 @auth.route("/signup", methods=["GET", "POST"])
 def sign_up():
+    if current_user.is_authenticated:
+        return redirect(url_for("views.home"))
+
+    form = SignUpForm
     if request.method == "POST":
         email = request.form.get("email")
         first_name = request.form.get("firstName")
@@ -73,4 +78,4 @@ def sign_up():
             flash("Account created.", category="success")
             return redirect(url_for("views.home"))
 
-    return render_template("signup.html", user=current_user)
+    return render_template("signup.html", user=current_user, form=form)
