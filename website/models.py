@@ -77,10 +77,6 @@ class Provider(db.Model, UserMixin):
         }
 
 
-# TODO: Check if the current user is a technician or client
-# TODO: search the database if the current username is in the Technician or Client db, curr_user is: blank OR
-# TODO: Add "ARE YOU TECHNICIAN or CLIENT option to the signup page"
-# TODO: check if running this creates the EXACT same db as catcare db sql
 class Customer(db.Model):
     __tablename__ = "Customer"
 
