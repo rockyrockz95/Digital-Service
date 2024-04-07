@@ -38,6 +38,10 @@ class SignUpForm(FlaskForm):
         ],
         validators=[DataRequired()],
     )
+    # TODO: Custom validators
+    # user = User.query.filter_by(email=email).first()
+    # if user:
+    #     flash("Email already exists", category="error")
     submit = SubmitField("Sign Up")
 
 

@@ -49,9 +49,7 @@ def sign_up():
         return redirect(url_for("views.home"))
 
     form = SignUpForm()
-    # user = User.query.filter_by(email=email).first()
-    # if user:
-    #     flash("Email already exists", category="error")
+
     if form.validate_on_submit():
         if form.user_role.data == "Provider":
             new_user = Provider(
