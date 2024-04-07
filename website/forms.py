@@ -30,8 +30,12 @@ class SignUpForm(FlaskForm):
         "Confirm Password", validators=[DataRequired(), EqualTo("password")]
     )
     user_role = SelectField(
-        "Select Account Type",
-        choices=["Provider", "Customer"],
+        "Account Type",
+        choices=[
+            ("", "Select an account type"),
+            ("Provider", "Service Provider"),
+            ("Customer", "Customer"),
+        ],
         validators=[DataRequired()],
     )
     submit = SubmitField("Sign Up")

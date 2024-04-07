@@ -58,14 +58,18 @@ def sign_up():
                 Email=form.email.data,
                 Name=form.name.data,
                 Username=form.username.data,
-                Password=form.password.data,
+                Password=generate_password_hash(
+                    form.password.data, method="pbkdf2:sha256"
+                ),
             )
         else:
             new_user = Customer(
                 Email=form.email.data,
                 Name=form.name.data,
                 Username=form.username.data,
-                Password=form.password.data,
+                Password=generate_password_hash(
+                    form.password.data, method="pbkdf2:sha256"
+                ),
             )
         db.session.add(new_user)
         db.session.commit()

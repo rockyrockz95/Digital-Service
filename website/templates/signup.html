@@ -4,7 +4,7 @@
     {{ form.csrf_token }}
     <h3 align = "center">Sign up</h3>
     <div class = "form-group">
-        <label for = "email">Email Address</label>
+        {{ form.email.label(class="form-control-label") }}
         {% if form.email.errors %}
             {{form.email(class="form-control is-invalid")}}
             <div class="invalid-feedback">
@@ -13,17 +13,12 @@
                 {% endfor %}
             </div>
         {% else %}
-        <input 
-            type = "email" 
-            class = "form-control" 
-            id = "email" 
-            name = "email" 
-            placeholder = "Enter email"
-        />
+          {{form.email(class="form-control")}}
         {% endif %}
     </div>
+
     <div class = "form-group">
-        <label for = "name">Full Name</label>
+        {{ form.name.label(class="form-control-label") }}
         {% if form.name.errors %}
             {{form.name(class="form-control is-invalid")}}
             <div class="invalid-feedback">
@@ -32,16 +27,26 @@
                 {% endfor %}
             </div>
         {% else %}
-        <input 
-            type = "text" 
-            class = "form-control" 
-            id = "name" 
-            name = "name" 
-            placeholder = "Enter full name"
-        />
+        {{form.name(class="form-control")}}
         {% endif %}
     </div>
+    
     <div class = "form-group">
+        {{ form.username.label(class="form-control-label") }}
+        {% if form.username.errors %}
+            {{form.username(class="form-control is-invalid")}}
+            <div class="invalid-feedback">
+                {% for error in form.username.errors %}
+                <span> {{error}} </span>
+                {% endfor %}
+            </div>
+        {% else %}
+        {{form.username(class="form-control")}}
+        {% endif %}
+    </div>
+
+    <div class = "form-group">
+        {{ form.password.label(class="form-control-label") }}
         {% if form.password.errors %}
             {{form.password(class="form-control is-invalid")}}
             <div class="invalid-feedback">
@@ -50,18 +55,12 @@
                 {% endfor %}
             </div>
         {% else %}
-        <label for = "password1">Password</label>
-        <input 
-            type = "password" 
-            class = "form-control" 
-            id = "password1" 
-            name = "password1" 
-            placeholder = "Enter password"
-        />
+        {{form.password(class="form-control")}}
         {% endif %}
     </div>
+
     <div class = "form-group">
-        <label for = "confirm_password">Confirm Password</label>
+        {{ form.confirm_password.label(class="form-control-label") }}
         {% if form.confirm_password.errors %}
             {{form.confirm_password(class="form-control is-invalid")}}
             <div class="invalid-feedback">
@@ -70,17 +69,12 @@
                 {% endfor %}
             </div>
         {% else %}
-        <input 
-            type = "password" 
-            class = "form-control" 
-            id = "confirm_password" 
-            name = "confirm_password" 
-            placeholder = "Confirm password"
-        />
+        {{form.confirm_password(class="form-control")}}
         {% endif %}
     </div>
+
     <div class = "form-group">
-        <label for = "user_role">Account Type</label>
+        {{ form.user_role.label(class="form-control-label") }}
         {% if form.user_role.errors %}
             {{form.user_role(class="form-control is-invalid")}}
             <div class="invalid-feedback">
@@ -89,13 +83,11 @@
                 {% endfor %}
             </div>
         {% else %}
-        <select name="user_role" id="user_role" class="form-control" required> 
-            <option value="Provider"> Service Provider </option>
-            <option value="Customer"> Customer </option>
-        </select>
+        {{form.user_role(class="form-control")}}
         {% endif %}
     </div>
+
     <br />
-    <button type = "submit" class = "btn btn-primary">Submit</button> 
+    {{ form.submit(class="btn btn-primary") }}
   </form>
  {% endblock %}

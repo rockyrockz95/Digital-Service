@@ -68,6 +68,9 @@ class Provider(db.Model, UserMixin):
     NailAppointments = db.relationship("NailAppointment", backref="Provider", lazy=True)
     Reviews = db.relationship("Review", backref="provider", lazy=True)
 
+    def get_id(self):
+        return self.ProviderID
+
     def to_json(self):
         return {
             "id": self.ProviderID,
@@ -77,7 +80,7 @@ class Provider(db.Model, UserMixin):
         }
 
 
-class Customer(db.Model):
+class Customer(db.Model, UserMixin):
     __tablename__ = "Customer"
 
     CustomerID = db.Column(db.Integer, primary_key=True)
@@ -90,6 +93,10 @@ class Customer(db.Model):
 
     NailAppointments = db.relationship("NailAppointment", backref="Customer", lazy=True)
     Pets = db.relationship("Pet", backref="customer", lazy=True)
+
+    # override for login_user
+    def get_id(self):
+        return self.CustomerID
 
     def to_json(self):
         return {
