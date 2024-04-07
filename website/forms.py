@@ -21,6 +21,7 @@ from .models import Provider, Customer
 
 class SignUpForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
+    name = StringField("Name", validators=[DataRequired(), Length(min=1, max=32)])
     username = StringField(
         "Username", validators=[DataRequired(), Length(min=4, max=20)]
     )
