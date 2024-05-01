@@ -6,7 +6,7 @@ from flask_login import LoginManager
 from flask_login import current_user
 
 db = SQLAlchemy()
-DB_NAME = "catcare"
+DB_NAME = "cc_copy"
 
 
 def create_app():

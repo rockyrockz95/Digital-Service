@@ -83,138 +83,20 @@
 </head>
 
 <body>
-    <!-- Mock schedule table -->
-    <!-- <h2>Schedule</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th></th> 
-                    <th>Sunday</th>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
-                    <th>Saturday</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>9:00 AM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>10:00 AM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>11:00 AM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>12:00 PM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>1:00 PM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>2:00 PM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>3:00 PM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>4:00 PM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>5:00 PM</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table> -->
-
     <h2>Schedule</h2>
     <table>
         <thead>
+            {% for entry in schedule %}
             <tr>
-                <th>Sunday</th>
-                <th>Monday</th>
-                <th>Tuesday</th>
-                <th>Wednesday</th>
-                <th>Thursday</th>
-                <th>Friday</th>
-                <th>Saturday</th>
+                <th>{{entry.Day}}</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>2:00 PM - 4:00 PM</td>
-                <td>10:00 AM - 12:00 PM, 2:00 PM - 4:00 PM</td>
-                <td>1:00 PM - 3:00 PM</td>
-                <td>9:00 AM - 11:00 AM, 3:00 PM - 5:00 PM</td>
-                <td>11:00 AM - 1:00 PM, 4:00 PM - 6:00 PM</td>
-                <td>2:00 PM - 4:00 PM</td>
-                <td>10:00 AM - 12:00 PM, 2:00 PM - 4:00 PM</td>
+                <td>{{entry.StartTime}}</td>
+                <td>{{entry.EndTime}}</td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 
@@ -232,39 +114,8 @@
         }
     </style>
 
-    <!-- <form action="#" method="post">
-        <h2> Booking Form</h2>
-        <label for="name">Full Name:</label>
-        <input type="text" id="name" name="name" required>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="4" required></textarea>
-
-        <label for="appointment">Select Appointment Type:</label>
-        <select id="appointment" name="appointment" required>
-            <option value="">Select</option>
-            <option value="Consultation">Consultation</option>
-            <option value="Manicure">Manicure</option>
-            <option value="Treatment">Treatment</option>
-            <option value="Other">Other</option>
-        </select>
-
-        <label for="time">Select Appointment Time:</label>
-        <select id="time" name="time" required>
-            <option value="">Select</option>
-            <option value="09:00 AM">09:00 AM</option>
-            <option value="10:00 AM">10:00 AM</option>
-            <option value="11:00 AM">11:00 AM</option>
-            <option value="12:00 PM">12:00 PM</option>
-            <option value="01:00 PM">01:00 PM</option>
-            <option value="02:00 PM">02:00 PM</option>
-            <option value="03:00 PM">03:00 PM</option>
-            <option value="04:00 PM">04:00 PM</option>
-        </select>
-
-        <input type="submit" value="Book Appointment">
-    </form> -->
-
+<!-- TODO: Make Booking Form -->
     <form action="/appointmentbooked" method="post" onsubmit="return confirmSubmit()">
         <h2>Booking Form</h2>
         <label for="name">Full Name:</label>
