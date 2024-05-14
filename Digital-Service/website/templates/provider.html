@@ -1,0 +1,199 @@
+{% extends "base.html" %} {% block title %}Provider{% endblock %} {% block content
+    %}
+    <html lang="en">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Appointment Booking Form</title>
+        <style>
+            /* Style for the form */
+            body {
+                background-color: #f4f4f4;
+    
+            }
+    
+            form {
+                max-width: 20000px;
+                margin: 0 auto;
+                background: #ffffff;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+                padding-bottom: 55px;
+            }
+    
+            h2 {
+                text-align: center;
+                margin-bottom: 10px;
+                font-size: 30px;
+            }
+    
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
+    
+            input[type="text"],
+            select {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+    
+            input[type="submit"] {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                float: right;
+            }
+    
+            input[type="submit"]:hover {
+                background-color: #45a049;
+            }
+    
+            /* Style for the schedule table */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+    
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+    
+            th {
+                background-color: #f2f2f2;
+            }
+    
+            body {
+                padding-bottom: 100px;
+            }
+            .wrapper {
+                text-align: center;
+            }
+            .button {
+                position: absolute;
+                top: 50%;
+            }   
+
+        </style>
+    </head>
+    
+    <body>
+    
+        <style>
+            textarea#description {
+                resize: vertical;
+                /* Allow vertical resizing only */
+                min-height: 100px;
+                /* Set a minimum height */
+                width: 100%;
+                /* Set width to 100% */
+            }
+        </style>
+    
+    {% if user.is_authenticated %}
+
+  <form>
+    <body>
+        <div class="container">
+          <div class="header">
+            <h1 class="text-center text-success">Select an Appointment with {{provider.Name}}</h1>
+            <h2 class="text-center">Price Rate: ${{provider.PriceRate}}</h2>
+          </div>
+    
+          <br>
+    
+          <div class="row justify-content-center align-items-center">
+            <div class="form-group col-xs-6">
+              <label for="all_classes">Select a date:</label>
+              <select class="form-control" style="color: rgb(0, 0, 0); background: #ffffff;" id="all_classes">
+                {% for o in all_classes %}
+                        <option value="{{ o }}">{{ o }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group col-xs-6">
+              <label for="all_entries">Select an appointment time:</label>
+              <select class="form-control" style="color:rgb(0, 0, 0); background:#ffffff;" id="all_entries">
+                {% for o in all_entries %}
+                        <option value="{{ o }}">{{ o }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div id="appointmentDescription"> 
+            <label for="description">Enter a description:</label>
+            <input type="text" id="description" name="description" placeholder="Description...">
+          </div>
+
+          <div class="wrapper">
+            <button type="button" style="color:white; background:#25af3c;" id="process_input">Book Appointment!</button>
+          </div><br>
+          <div id="processed_results" class = "wrapper">
+            <!-- Here we display some output based on the selection -->
+            
+          </div>
+        </div>
+      </form>
+        
+    </body>
+        
+        
+       
+    {% endif %}
+        
+    </body>
+    
+    </html>
+    
+    {% endblock %}
+
+
+
+{% block javascript %}
+<script src="https://code.jquery.com/jquery-1.12.4.js" type="text/javascript"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    $('#all_classes').change(function(){
+
+      $.getJSON('/_update_dropdown', {
+        selected_class: $('#all_classes').val(),
+        provider_id: {{provider_id}}
+
+      }).done(function(data) {
+            $('#all_entries').html(data.html_string_selected);
+       })
+    });
+    $('#process_input').bind('click', function() {
+
+        $.getJSON('/_process_data', {
+            selected_class: $('#all_classes').val(),
+            selected_entry: $('#all_entries').val(),
+            description: $('#description').val(),
+            provider_id: {{provider_id}},
+            
+        }).success(function(data) {
+            $('#processed_results').text(data.result_text);
+        })
+      return false;
+
+    });
+  });
+</script>
+
+{% endblock %}
